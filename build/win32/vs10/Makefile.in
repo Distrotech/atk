@@ -196,6 +196,7 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WARN_CFLAGS = @WARN_CFLAGS@
 WINDRES = @WINDRES@
 XGETTEXT = @XGETTEXT@
 abs_builddir = @abs_builddir@
@@ -259,7 +260,8 @@ EXTRA_DIST = \
 	atk.vcxprojin \
 	atk.vcxproj.filters \
 	atk.vcxproj.filtersin \
-	install.vcxproj
+	install.vcxproj	\
+	gengir.vcxproj
 
 all: all-am
 
