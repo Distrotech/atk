@@ -62,7 +62,8 @@ host_triplet = @host@
 @OS_WIN32_FALSE@	$(am__DEPENDENCIES_1)
 subdir = atk
 DIST_COMMON = $(libatkinclude_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/atk.rc.in
+	$(srcdir)/Makefile.in $(srcdir)/atk.rc.in \
+	$(srcdir)/atkversion.h.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gtk-doc.m4 \
 	$(top_srcdir)/m4/introspection.m4 $(top_srcdir)/m4/libtool.m4 \
@@ -73,7 +74,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES = atk.rc
+CONFIG_CLEAN_FILES = atk.rc atkversion.h
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -113,7 +114,7 @@ am__objects_1 = atkaction.lo atkcomponent.lo atkdocument.lo \
 	atkobjectfactory.lo atkplug.lo atkregistry.lo atkrelation.lo \
 	atkrelationset.lo atkselection.lo atksocket.lo atkstate.lo \
 	atkstateset.lo atkstreamablecontent.lo atktable.lo atktext.lo \
-	atkutil.lo atkmisc.lo atkvalue.lo atkwindow.lo
+	atkutil.lo atkmisc.lo atkvalue.lo atkversion.lo atkwindow.lo
 am_libatk_1_0_la_OBJECTS = $(am__objects_1) atk-enum-types.lo
 libatk_1_0_la_OBJECTS = $(am_libatk_1_0_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -278,6 +279,7 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WARN_CFLAGS = @WARN_CFLAGS@
 WINDRES = @WINDRES@
 XGETTEXT = @XGETTEXT@
 abs_builddir = @abs_builddir@
@@ -383,7 +385,8 @@ atk_sources = \
 	atktext.c		\
 	atkutil.c		\
 	atkmisc.c		\
-	atkvalue.c \
+	atkvalue.c 		\
+	atkversion.c 		\
 	atkwindow.c
 
 libatk_1_0_la_SOURCES = \
@@ -392,7 +395,6 @@ libatk_1_0_la_SOURCES = \
 
 libatkincludedir = $(includedir)/atk-1.0/atk
 atk_headers = \
-        atk.h			\
         atkaction.h		\
         atkcomponent.h		\
         atkdocument.h		\
@@ -424,7 +426,9 @@ atk_headers = \
         atkwindow.h
 
 libatkinclude_HEADERS = \
+        atk.h			\
 	$(atk_headers)		\
+	$(top_builddir)/atk/atkversion.h \
 	atk-enum-types.h
 
 
@@ -435,13 +439,14 @@ BUILT_SOURCES = atkmarshal.h atkmarshal.c atk-enum-types.h atk-enum-types.c
 @HAVE_INTROSPECTION_TRUE@    $(atk_sources)
 
 @HAVE_INTROSPECTION_TRUE@introspection_generated_sources = \
+@HAVE_INTROSPECTION_TRUE@    $(top_builddir)/atk/atkversion.h 	\
 @HAVE_INTROSPECTION_TRUE@    atk-enum-types.c	\
 @HAVE_INTROSPECTION_TRUE@    atk-enum-types.h
 
 @HAVE_INTROSPECTION_TRUE@Atk_1_0_gir_INCLUDES = GObject-2.0
 @HAVE_INTROSPECTION_TRUE@Atk_1_0_gir_CFLAGS = $(INCLUDES)
 @HAVE_INTROSPECTION_TRUE@Atk_1_0_gir_LIBS = libatk-1.0.la
-@HAVE_INTROSPECTION_TRUE@Atk_1_0_gir_SCANNERFLAGS = --pkg-export atk --warn-all
+@HAVE_INTROSPECTION_TRUE@Atk_1_0_gir_SCANNERFLAGS = --pkg-export atk --warn-all --c-include "atk/atk.h"
 @HAVE_INTROSPECTION_TRUE@Atk_1_0_gir_FILES = \
 @HAVE_INTROSPECTION_TRUE@    $(addprefix $(srcdir)/, $(introspection_sources))	\
 @HAVE_INTROSPECTION_TRUE@    $(introspection_generated_sources)
@@ -452,7 +457,7 @@ BUILT_SOURCES = atkmarshal.h atkmarshal.c atk-enum-types.h atk-enum-types.c
 @HAVE_INTROSPECTION_TRUE@typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 @OS_WIN32_TRUE@libatk_1_0_la_DEPENDENCIES = atk-win32-res.o atk.def
 @MS_LIB_AVAILABLE_TRUE@noinst_DATA = atk-$(ATK_API_VERSION).lib
-EXTRA_DIST = atk.symbols atk.rc.in atkmarshal.list atkintl.h atk.rc
+EXTRA_DIST = atk.symbols atk.rc.in atkmarshal.list atkintl.h atk.rc atkversion.h.in
 DISTCLEANFILES = \
   stamp-atkmarshal.h stamp-atkmarshal.c \
   s-enum-types-h s-enum-types-c
@@ -493,6 +498,8 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 atk.rc: $(top_builddir)/config.status $(srcdir)/atk.rc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
+atkversion.h: $(top_builddir)/config.status $(srcdir)/atkversion.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
@@ -563,6 +570,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atktext.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atkutil.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atkvalue.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atkversion.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atkwindow.Plo@am__quote@
 
 .c.o:

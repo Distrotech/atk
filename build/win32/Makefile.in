@@ -236,6 +236,7 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WARN_CFLAGS = @WARN_CFLAGS@
 WINDRES = @WINDRES@
 XGETTEXT = @XGETTEXT@
 abs_builddir = @abs_builddir@
@@ -294,6 +295,10 @@ top_srcdir = @top_srcdir@
 SUBDIRS = \
 	vs9  \
 	vs10
+
+EXTRA_DIST = \
+	gengir.bat	\
+	gen-file-list-atk.py
 
 all: all-recursive
 

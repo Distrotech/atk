@@ -51,6 +51,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+noinst_PROGRAMS = testrole$(EXEEXT) testrelation$(EXEEXT) \
+	teststateset$(EXEEXT)
 subdir = tests
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -65,25 +67,23 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-LTLIBRARIES = $(noinst_LTLIBRARIES)
+PROGRAMS = $(noinst_PROGRAMS)
+am_testrelation_OBJECTS = testrelation.$(OBJEXT)
+testrelation_OBJECTS = $(am_testrelation_OBJECTS)
+testrelation_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
-libtestrelation_la_DEPENDENCIES = $(libatk) $(am__DEPENDENCIES_1)
-am_libtestrelation_la_OBJECTS = testrelation.lo
-libtestrelation_la_OBJECTS = $(am_libtestrelation_la_OBJECTS)
+testrelation_DEPENDENCIES = $(libatk) $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
-libtestrelation_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(AM_CFLAGS) $(CFLAGS) $(libtestrelation_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
-libteststateset_la_DEPENDENCIES = $(libatk) $(am__DEPENDENCIES_1)
-am_libteststateset_la_OBJECTS = teststateset.lo
-libteststateset_la_OBJECTS = $(am_libteststateset_la_OBJECTS)
-libteststateset_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(AM_CFLAGS) $(CFLAGS) $(libteststateset_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
+am_testrole_OBJECTS = testrole.$(OBJEXT)
+testrole_OBJECTS = $(am_testrole_OBJECTS)
+testrole_LDADD = $(LDADD)
+testrole_DEPENDENCIES = $(libatk) $(am__DEPENDENCIES_1)
+am_teststateset_OBJECTS = teststateset.$(OBJEXT)
+teststateset_OBJECTS = $(am_teststateset_OBJECTS)
+teststateset_LDADD = $(LDADD)
+teststateset_DEPENDENCIES = $(libatk) $(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -110,9 +110,10 @@ am__v_CCLD_0 = @echo "  CCLD  " $@;
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN   " $@;
-SOURCES = $(libtestrelation_la_SOURCES) $(libteststateset_la_SOURCES)
-DIST_SOURCES = $(libtestrelation_la_SOURCES) \
-	$(libteststateset_la_SOURCES)
+SOURCES = $(testrelation_SOURCES) $(testrole_SOURCES) \
+	$(teststateset_SOURCES)
+DIST_SOURCES = $(testrelation_SOURCES) $(testrole_SOURCES) \
+	$(teststateset_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -239,6 +240,7 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WARN_CFLAGS = @WARN_CFLAGS@
 WINDRES = @WINDRES@
 XGETTEXT = @XGETTEXT@
 abs_builddir = @abs_builddir@
@@ -296,35 +298,18 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 @PLATFORM_WIN32_FALSE@no_undefined = 
 @PLATFORM_WIN32_TRUE@no_undefined = -no-undefined
-noinst_LTLIBRARIES = \
-	libteststateset.la	\
-	libtestrelation.la
-
 libatk = $(top_builddir)/atk/libatk-$(ATK_API_VERSION).la
-INCLUDES = -I$(top_srcdir)	\
+AM_CPPFLAGS = -I$(top_srcdir)	\
 	-DG_DISABLE_DEPRECATED	\
 	$(DEP_CFLAGS)
 
 DEPS = \
 	$(libatk)
 
-moduledir = $(libdir)/gtk-2.0/modules
-libteststateset_la_SOURCES = teststateset.c
-libteststateset_la_LDFLAGS = \
-	-rpath $(moduledir) \
-	$(no_undefined)	\
-	-avoid-version	\
-	-module
-
-libteststateset_la_LIBADD = $(libatk) $(DEP_LIBS)
-libtestrelation_la_SOURCES = testrelation.c
-libtestrelation_la_LDFLAGS = \
-	-rpath $(moduledir) \
-	$(no_undefined)	\
-	-avoid-version	\
-	-module
-
-libtestrelation_la_LIBADD = $(libatk) $(DEP_LIBS)
+LDADD = $(libatk) $(DEP_LIBS)
+testrole_SOURCES = testrole.c
+testrelation_SOURCES = testrelation.c
+teststateset_SOURCES = teststateset.c
 all: all-am
 
 .SUFFIXES:
@@ -360,18 +345,23 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
-clean-noinstLTLIBRARIES:
-	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
-	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
-	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
-	  test "$$dir" != "$$p" || dir=.; \
-	  echo "rm -f \"$${dir}/so_locations\""; \
-	  rm -f "$${dir}/so_locations"; \
-	done
-libtestrelation.la: $(libtestrelation_la_OBJECTS) $(libtestrelation_la_DEPENDENCIES) $(EXTRA_libtestrelation_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libtestrelation_la_LINK)  $(libtestrelation_la_OBJECTS) $(libtestrelation_la_LIBADD) $(LIBS)
-libteststateset.la: $(libteststateset_la_OBJECTS) $(libteststateset_la_DEPENDENCIES) $(EXTRA_libteststateset_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libteststateset_la_LINK)  $(libteststateset_la_OBJECTS) $(libteststateset_la_LIBADD) $(LIBS)
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+testrelation$(EXEEXT): $(testrelation_OBJECTS) $(testrelation_DEPENDENCIES) $(EXTRA_testrelation_DEPENDENCIES) 
+	@rm -f testrelation$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(testrelation_OBJECTS) $(testrelation_LDADD) $(LIBS)
+testrole$(EXEEXT): $(testrole_OBJECTS) $(testrole_DEPENDENCIES) $(EXTRA_testrole_DEPENDENCIES) 
+	@rm -f testrole$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(testrole_OBJECTS) $(testrole_LDADD) $(LIBS)
+teststateset$(EXEEXT): $(teststateset_OBJECTS) $(teststateset_DEPENDENCIES) $(EXTRA_teststateset_DEPENDENCIES) 
+	@rm -f teststateset$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(teststateset_OBJECTS) $(teststateset_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -379,8 +369,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testrelation.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/teststateset.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testrelation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testrole.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/teststateset.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -493,7 +484,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES)
+all-am: Makefile $(PROGRAMS)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -527,7 +518,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
+clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -599,7 +590,7 @@ uninstall-am:
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLTLIBRARIES ctags distclean \
+	clean-libtool clean-noinstPROGRAMS ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
